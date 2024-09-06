@@ -213,40 +213,44 @@ void setup() {
 
 void loop() {
   unsigned long currentMillis = millis();
-  Serial.println(grip);
   uint16_t pressure;
-
+  pressure = UnderPressure(7);
   grip = digitalRead(IN0);
   if (grip == 1) {
-      while (position > 60) {
-            pressure = UnderPressure(7);
+      while ((position >= 60) && (pressure < 300)) {
+        pressure = UnderPressure(7);
         if (pressure < 300) {
           position--;
           delay(50);
           Goto(position); //Try to grab the object untill the pressure is enough
-        } else if ((position == 60) && (pressure < 300)){
+        } 
+        if ((pressure < 300) && (position < 62)){
+          position = 149;
+          Goto(position);
           digitalWrite(OUT3, HIGH);
           delay(100);
-          digitalWrite(OUT3, LOW); //If nothing is grabbed, send a signal to the robot
-        }
+          digitalWrite(OUT3, LOW);
+          break;
+        } 
       }
     }
-  
+
   if (pressure>300){
     digitalWrite(OUT0,HIGH);
     grip = 0;
-    delay(100);
+    delay(1000);
     digitalWrite(OUT0, LOW);
   }
 
-   drop = digitalRead(IN2);
+  drop = digitalRead(IN1);
   if (drop == 1){
     position = 150;
     Goto(position);
+    delay(3000);
     digitalWrite(OUT2, HIGH);
-    drop = 0;
     delay(1000);
     digitalWrite(OUT2, LOW);
+    drop = 0;
   }
 
     // check to see if it's time to blink the LED; that is, if the difference
