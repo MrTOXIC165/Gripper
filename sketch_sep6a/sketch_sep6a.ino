@@ -214,21 +214,24 @@ void setup() {
 void loop() {
   unsigned long currentMillis = millis();
   Serial.println(grip);
-
   uint16_t pressure;
+
   grip = digitalRead(IN0);
   if (grip == 1) {
-
-    while (position > 60) {
-      pressure = UnderPressure(7);
-      if (pressure < 300) {
-        position--;
-        delay(50);
-        Goto(position);
-      } else{
-        break;
+      while (position > 60) {
+            pressure = UnderPressure(7);
+        if (pressure < 300) {
+          position--;
+          delay(50);
+          Goto(position); //Try to grab the object untill the pressure is enough
+        } else if ((position == 60) && (pressure < 300)){
+          digitalWrite(OUT3, HIGH);
+          delay(100);
+          digitalWrite(OUT3, LOW); //If nothing is grabbed, send a signal to the robot
+        }
       }
     }
+  
   if (pressure>300){
     digitalWrite(OUT0,HIGH);
     grip = 0;
@@ -284,4 +287,3 @@ void loop() {
       }
     }
   }
-}
